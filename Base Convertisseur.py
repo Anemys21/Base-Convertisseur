@@ -20,8 +20,6 @@ def int_to_base(n: int, base: int) -> str:
         n, r = divmod(n, base)
         out.append(DIGITS[r])
     s = ("-" if neg else "") + "".join(reversed(out))
-    return s
-
 
 def auto_detect(value: str):
     v = value.strip().upper()
@@ -168,7 +166,8 @@ class BaseConverterApp(ttk.Frame):
         self.footer.grid(column=0, row=3, sticky="ew", pady=(10, 6))
 
         # Initial computation
-        self.convert()
+        # Schedule conversion after widgets are fully initialized to avoid early Tcl calls
+        self.after(0, self.convert)
 
     def _add_row(self, parent, r, title: str):
         ttk.Label(parent, text=title).grid(column=0, row=r, sticky="w", pady=4)
@@ -180,7 +179,7 @@ class BaseConverterApp(ttk.Frame):
     def _set_entry(self, entry: ttk.Entry, text: str):
         entry.configure(state="normal")
         entry.delete(0, tk.END)
-        entry.insert(0, text)
+        entry.insert(0, str(text))
         entry.configure(state="readonly")
 
     def parse_input(self):
@@ -224,7 +223,7 @@ class BaseConverterApp(ttk.Frame):
             self.custom_title.configure(text=f"Base cible ({base_dst})")
             self.custom_value.configure(state="normal")
             self.custom_value.delete(0, tk.END)
-            self.custom_value.insert(0, int_to_base(n, base_dst))
+            self.custom_value.insert(0, str(int_to_base(n, base_dst)))
             self.custom_value.configure(state="readonly")
         except Exception as e:
             messagebox.showerror("Erreur", str(e))
